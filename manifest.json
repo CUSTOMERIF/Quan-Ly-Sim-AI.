@@ -1,0 +1,21 @@
+{
+  "name": "SIM AI ADMIN",
+  "short_name": "SIM AI ADMIN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#061428",
+  "theme_color": "#081a31",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
