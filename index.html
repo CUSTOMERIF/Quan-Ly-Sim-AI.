@@ -1,194 +1,389 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#07182b">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="SIM AI Admin">
-  <title>SIM AI Admin</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>SIM AI ADMIN</title>
 
-  <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="icon" href="./icons/icon-192.png">
-  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+<meta name="theme-color" content="#081a31">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SIM AI ADMIN">
 
-  <style>
-    :root{
-      --bg:#07111f;
-      --panel:#0d2138;
-      --line:rgba(255,255,255,.12);
-      --text:#eef7ff;
-      --muted:#9db0c4;
-      --accent:#17c6b2;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;width:100%;height:100%;background:var(--bg);font-family:Arial,sans-serif;color:var(--text);overflow:hidden}
-    #shell{height:100%;display:flex;flex-direction:column}
-    #topbar{
-      min-height:54px;padding:8px 10px;
-      display:flex;align-items:center;gap:8px;
-      background:linear-gradient(180deg,#0d2138,#081827);
-      border-bottom:1px solid var(--line)
-    }
-    #brand{font-weight:800;white-space:nowrap}
-    #status{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
-    button{
-      border:0;border-radius:10px;padding:10px 12px;font-weight:800;
-      color:#04211d;background:var(--accent);cursor:pointer
-    }
-    #reloadBtn{background:#dce8f4;color:#102030}
-    #frameWrap{position:relative;flex:1;min-height:0}
-    #appFrame{width:100%;height:100%;border:0;background:#fff;display:block}
-    #loading{
-      position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-      background:#07111f;color:#d8ebff;font-weight:700;z-index:3
-    }
-    #help{
-      display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:20;
-      align-items:center;justify-content:center;padding:20px
-    }
-    #helpCard{
-      max-width:440px;width:100%;background:#0d2138;border:1px solid var(--line);
-      border-radius:18px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.45)
-    }
-    #helpCard h3{margin:0 0 10px}
-    #helpCard p{color:#c8d7e6;line-height:1.45}
-    #helpCard button{width:100%}
-    @media (max-width:700px){
-      #topbar{min-height:50px;padding:6px}
-      #brand{font-size:13px}
-      #status{display:none}
-      button{padding:9px 10px;font-size:12px}
-    }
-  </style>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<style>
+:root{
+  --night:#061428;
+  --night2:#0a2742;
+  --cyan:#28e3d4;
+  --red:#ef3d4e;
+  --red2:#ff6671;
+  --gold:#ffd36f;
+  --gold2:#ffe8a6;
+  --white:#f7fbff;
+  --green:#26a66f;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;width:100%;height:100%;overflow:hidden;
+  font-family:Arial,Helvetica,sans-serif;background:var(--night)
+}
+body{position:fixed;inset:0}
+
+#appFrame{
+  position:fixed;inset:0;width:100%;height:100%;
+  border:0;display:block;background:#fff;
+  opacity:0;transform:scale(1.002);
+  transition:opacity .45s ease,transform .45s ease;
+}
+body.app-ready #appFrame{opacity:1;transform:scale(1)}
+
+#loading{
+  position:fixed;inset:0;z-index:20;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(circle at 50% 22%,rgba(40,227,212,.09),transparent 26%),
+    radial-gradient(circle at 78% 22%,rgba(255,211,111,.08),transparent 24%),
+    linear-gradient(180deg,#061428 0%,#09213b 48%,#0d3150 100%);
+  transition:opacity .45s ease,visibility .45s ease;
+}
+#loading.hide{opacity:0;visibility:hidden;pointer-events:none}
+
+.skyGlow{
+  position:absolute;inset:0;opacity:.8;
+  background:
+    radial-gradient(circle at 20% 18%,rgba(255,255,255,.08),transparent 20%),
+    radial-gradient(circle at 82% 16%,rgba(255,203,113,.08),transparent 23%);
+}
+
+.moon{
+  position:absolute;top:6vh;right:9vw;
+  width:clamp(70px,21vw,108px);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 36% 34%,#ffffff 0 38%,#f7fbff 62%,#dae7f7 100%);
+  box-shadow:0 0 34px rgba(255,255,255,.18);
+}
+.moon:after{
+  content:"";position:absolute;inset:16% 12% 14% 24%;
+  border-radius:50%;opacity:.16;
+  background:
+    radial-gradient(circle at 28% 34%,#98a8be 0 4%,transparent 5%),
+    radial-gradient(circle at 66% 54%,#98a8be 0 5%,transparent 6%),
+    radial-gradient(circle at 48% 74%,#98a8be 0 3%,transparent 4%);
+}
+
+/* Tuyết */
+.snow{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.snow span{
+  position:absolute;top:-12px;border-radius:50%;
+  background:rgba(255,255,255,.96);
+  box-shadow:0 0 8px rgba(255,255,255,.28);
+  animation:snowFall linear infinite;
+}
+
+/* Đèn lồng Tết */
+.lanterns{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lantern{
+  --x:50%;--delay:0s;--dur:9s;--size:28px;
+  position:absolute;left:var(--x);bottom:-76px;
+  width:var(--size);height:calc(var(--size)*1.22);
+  opacity:0;animation:floatLantern var(--dur) linear var(--delay) infinite;
+}
+.lantern:before{
+  content:"";position:absolute;left:13%;top:14%;width:74%;height:66%;
+  border-radius:46% 46% 40% 40%;
+  background:
+    radial-gradient(circle at 35% 27%,#fff0a4 0 8%,#ffca58 20%,#ef5b32 62%,#a52125 100%);
+  box-shadow:0 0 18px rgba(255,151,65,.42);
+}
+.lantern:after{
+  content:"";position:absolute;left:50%;top:0;width:1px;height:100%;
+  background:linear-gradient(#ffd36f 0 7%,transparent 7% 86%,#ffd36f 86%);
+  box-shadow:
+    -8px 17px 0 -0.2px rgba(255,211,111,.72),
+     8px 17px 0 -0.2px rgba(255,211,111,.72);
+}
+.lantern i{
+  position:absolute;left:26%;bottom:6%;width:48%;height:10%;
+  border-radius:50%;background:#ffd36f;
+  box-shadow:0 5px 9px rgba(255,177,60,.35);
+}
+.l1{--x:6%;--delay:-2s;--dur:10s;--size:24px}
+.l2{--x:18%;--delay:-6s;--dur:12s;--size:31px}
+.l3{--x:34%;--delay:-7s;--dur:9s;--size:21px}
+.l4{--x:62%;--delay:-3s;--dur:11s;--size:27px}
+.l5{--x:78%;--delay:-8s;--dur:10s;--size:22px}
+.l6{--x:91%;--delay:-4s;--dur:13s;--size:30px}
+
+/* Cành mai Tết */
+.blossom{
+  position:absolute;right:-20px;top:12%;width:180px;height:220px;
+  transform:rotate(-8deg);opacity:.86;pointer-events:none;
+}
+.branch{
+  position:absolute;right:52px;top:12px;width:8px;height:205px;
+  background:linear-gradient(#4c2f20,#7d4a2c);
+  border-radius:10px;transform:rotate(28deg);
+}
+.flower{
+  position:absolute;width:16px;height:16px;border-radius:50%;
+  background:radial-gradient(circle,#ff9f2f 0 18%,#ffd953 20% 58%,#fff0a3 60% 100%);
+  box-shadow:0 0 10px rgba(255,221,94,.35);
+}
+.f1{right:42px;top:36px}
+.f2{right:74px;top:74px;transform:scale(.8)}
+.f3{right:30px;top:112px;transform:scale(1.08)}
+.f4{right:88px;top:145px;transform:scale(.75)}
+.f5{right:54px;top:182px;transform:scale(.9)}
+
+/* Núi tuyết + cây thông */
+.scene{position:absolute;left:0;right:0;bottom:0;height:42%;overflow:hidden;pointer-events:none}
+.mountain{
+  position:absolute;bottom:10%;width:125%;height:56%;
+  border-radius:50% 50% 0 0;filter:blur(1px);
+}
+.m1{left:-35%;background:linear-gradient(180deg,rgba(34,77,107,.78),rgba(8,24,46,1))}
+.m2{right:-38%;bottom:5%;background:linear-gradient(180deg,rgba(48,92,123,.62),rgba(8,24,46,.99));transform:scale(.82)}
+.m3{left:-10%;bottom:-2%;background:linear-gradient(180deg,rgba(22,57,87,.92),rgba(6,19,37,1));transform:scale(.68)}
+.snowCap{
+  position:absolute;top:-2px;left:10%;right:10%;height:26%;
+  background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(229,244,255,.90));
+  border-radius:50% 50% 35% 35%;
+}
+.ground{
+  position:absolute;left:0;right:0;bottom:0;height:24%;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.17),rgba(220,238,250,.10)),
+    linear-gradient(180deg,rgba(40,227,212,.03),rgba(255,255,255,.04));
+}
+
+.tree{
+  position:absolute;bottom:12%;width:0;height:0;
+  border-left:18px solid transparent;border-right:18px solid transparent;
+  border-bottom:40px solid #197954;
+  filter:drop-shadow(0 5px 8px rgba(0,0,0,.18));
+}
+.tree:before,.tree:after{
+  content:"";position:absolute;left:-15px;width:0;height:0;
+  border-left:15px solid transparent;border-right:15px solid transparent
+}
+.tree:before{top:12px;border-bottom:34px solid #238f67}
+.tree:after{top:22px;left:-12px;border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:28px solid #30aa7c}
+.tree i{position:absolute;left:-3px;bottom:-10px;width:6px;height:12px;background:#5a3b24;border-radius:2px}
+.t1{left:8%}
+.t2{left:18%;transform:scale(.82)}
+.t3{right:10%;transform:scale(1.04)}
+.t4{right:21%;transform:scale(.74)}
+
+.card{
+  position:relative;z-index:5;width:min(92vw,390px);
+  margin-top:-3vh;text-align:center;
+  display:flex;flex-direction:column;align-items:center;
+}
+.badge{
+  padding:8px 14px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.07);
+  color:#eef9ff;font-size:12px;backdrop-filter:blur(6px);
+}
+.badge b{
+  display:inline-block;width:8px;height:8px;margin-right:7px;
+  border-radius:50%;background:var(--red2);
+  box-shadow:0 0 10px rgba(255,102,113,.85);
+}
+.logo{
+  width:clamp(112px,32vw,146px);
+  height:clamp(112px,32vw,146px);
+  margin:20px 0 14px;object-fit:contain;display:block;
+  border-radius:26%;
+  filter:drop-shadow(0 12px 25px rgba(0,0,0,.34));
+  animation:logoFloat 3s ease-in-out infinite;
+}
+.title{
+  margin:0;color:var(--cyan);
+  font-size:clamp(22px,7vw,30px);
+  line-height:1.12;font-weight:900;
+  letter-spacing:.4px;text-transform:uppercase;
+  text-shadow:0 0 18px rgba(40,227,212,.18);
+}
+.sub{margin-top:9px;color:#e9f7ff;font-size:14px;opacity:.94}
+.progress{
+  width:min(82vw,260px);height:8px;margin-top:18px;
+  border-radius:99px;overflow:hidden;background:rgba(255,255,255,.10)
+}
+.bar{
+  height:100%;width:12%;border-radius:inherit;
+  background:linear-gradient(90deg,#e43c50,#ffd36f,#28e3d4);
+  box-shadow:0 0 14px rgba(40,227,212,.25);
+  transition:width .25s ease;
+}
+.caption{margin-top:10px;color:rgba(233,247,255,.78);font-size:12px}
+.dots{display:flex;gap:7px;margin-top:14px}
+.dots i{width:7px;height:7px;border-radius:50%;background:#fff;animation:blink 1.2s ease-in-out infinite}
+.dots i:nth-child(2){animation-delay:.15s}
+.dots i:nth-child(3){animation-delay:.3s}
+
+@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes blink{0%,80%,100%{opacity:.35;transform:scale(.8)}40%{opacity:1;transform:scale(1.15)}}
+@keyframes snowFall{
+  0%{transform:translate3d(0,-12px,0);opacity:0}
+  10%{opacity:.95}
+  100%{transform:translate3d(var(--drift),110vh,0);opacity:.18}
+}
+@keyframes floatLantern{
+  0%{transform:translate3d(0,0,0) rotate(-3deg) scale(.82);opacity:0}
+  10%{opacity:.82}
+  50%{transform:translate3d(15px,-48vh,0) rotate(5deg) scale(1)}
+  90%{opacity:.36}
+  100%{transform:translate3d(-12px,-105vh,0) rotate(-4deg) scale(.90);opacity:0}
+}
+@media(max-height:650px){
+  .moon{top:3vh}
+  .card{margin-top:-1vh}
+  .logo{margin:10px 0 8px;width:104px;height:104px}
+  .progress{margin-top:11px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation:none!important;transition:none!important}
+}
+</style>
 </head>
 <body>
-  <div id="shell">
-    <div id="topbar">
-      <div id="brand">🔐 SIM AI ADMIN</div>
-      <div id="status">Đang mở trang quản trị...</div>
-      <button id="installBtn" type="button">⬇ Cài ứng dụng</button>
-      <button id="reloadBtn" type="button">↻</button>
-    </div>
 
-    <div id="frameWrap">
-      <div id="loading">Đang tải trang quản trị...</div>
-      <iframe
-        id="appFrame"
-        title="SIM AI Admin"
-        allow="clipboard-read; clipboard-write; fullscreen"
-        allowfullscreen
-        referrerpolicy="strict-origin-when-cross-origin"></iframe>
-    </div>
+<iframe
+  id="appFrame"
+  src="https://script.google.com/macros/s/AKfycbz2c3Ud95ElKmXTnj7sY9O_m_llFzB8Qdt1wiIOnZCXa7IeOAS7eAMLTFuvo_-XxbPU/exec?admin=1"
+  allow="clipboard-read; clipboard-write; fullscreen"
+  allowfullscreen
+  loading="eager"
+  title="SIM AI ADMIN"
+></iframe>
+
+<section id="loading" aria-label="Đang tải ứng dụng quản trị">
+  <div class="skyGlow"></div>
+  <div class="moon"></div>
+
+  <div class="snow" id="snowLayer"></div>
+
+  <div class="lanterns">
+    <span class="lantern l1"><i></i></span>
+    <span class="lantern l2"><i></i></span>
+    <span class="lantern l3"><i></i></span>
+    <span class="lantern l4"><i></i></span>
+    <span class="lantern l5"><i></i></span>
+    <span class="lantern l6"><i></i></span>
   </div>
 
-  <div id="help">
-    <div id="helpCard">
-      <h3>📲 Cài ứng dụng quản trị</h3>
-      <p id="helpText"></p>
-      <button type="button" id="closeHelp">Đóng</button>
-    </div>
+  <div class="blossom">
+    <div class="branch"></div>
+    <span class="flower f1"></span>
+    <span class="flower f2"></span>
+    <span class="flower f3"></span>
+    <span class="flower f4"></span>
+    <span class="flower f5"></span>
   </div>
 
-  <script src="./config.js"></script>
-  <script>
-    (function(){
-      const frame = document.getElementById('appFrame');
-      const loading = document.getElementById('loading');
-      const status = document.getElementById('status');
-      const installBtn = document.getElementById('installBtn');
-      const reloadBtn = document.getElementById('reloadBtn');
-      const help = document.getElementById('help');
-      const helpText = document.getElementById('helpText');
-      const closeHelp = document.getElementById('closeHelp');
+  <div class="scene">
+    <div class="mountain m1"><div class="snowCap"></div></div>
+    <div class="mountain m2"><div class="snowCap"></div></div>
+    <div class="mountain m3"><div class="snowCap"></div></div>
 
-      function buildAdminUrl(){
-        const base = String(window.ADMIN_PWA_CONFIG?.APP_BASE_URL || '').trim();
-        if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec(?:\?.*)?$/i.test(base)){
-          return '';
-        }
-        try{
-          const url = new URL(base);
-          url.searchParams.set('admin','1');
-          return url.toString();
-        }catch(e){
-          return '';
-        }
-      }
+    <div class="tree t1"><i></i></div>
+    <div class="tree t2"><i></i></div>
+    <div class="tree t3"><i></i></div>
+    <div class="tree t4"><i></i></div>
 
-      const adminUrl = buildAdminUrl();
+    <div class="ground"></div>
+  </div>
 
-      if(!adminUrl){
-        loading.innerHTML =
-          '⚠️ Chưa cài link Apps Script.<br><br>' +
-          'Mở <b>config.js</b> và thay APP_BASE_URL bằng link <b>/exec</b>.';
-        status.textContent = 'Chưa cấu hình link Apps Script';
-      }else{
-        frame.src = adminUrl;
-        frame.addEventListener('load', ()=>{
-          loading.style.display='none';
-          status.textContent='Trang quản trị đã tải';
-        });
-      }
+  <div class="card">
+    <div class="badge"><b></b>TẾT + NOEL • SIM AI ADMIN</div>
+    <img src="logo-loading.png" class="logo" alt="SIM AI ADMIN">
+    <h1 class="title">SIM AI ADMIN</h1>
+    <div class="sub">Tuyết rơi • đèn lồng • sắc xuân</div>
 
-      reloadBtn.addEventListener('click', ()=>{
-        if(adminUrl){
-          loading.style.display='flex';
-          frame.src = adminUrl + (adminUrl.includes('?') ? '&' : '?') + '_=' + Date.now();
-        }
-      });
+    <div class="progress">
+      <div class="bar" id="progressBar"></div>
+    </div>
+    <div class="caption" id="loadingCaption">Vui lòng chờ trong giây lát</div>
 
-      let deferredPrompt = null;
+    <div class="dots"><i></i><i></i><i></i></div>
+  </div>
+</section>
 
-      function isStandalone(){
-        return window.matchMedia('(display-mode: standalone)').matches ||
-               window.navigator.standalone === true;
-      }
+<script>
+(() => {
+  const frame = document.getElementById("appFrame");
+  const loading = document.getElementById("loading");
+  const bar = document.getElementById("progressBar");
+  const caption = document.getElementById("loadingCaption");
+  const snowLayer = document.getElementById("snowLayer");
 
-      function refreshInstallButton(){
-        if(isStandalone()) installBtn.style.display='none';
-      }
+  /* Tuyết rơi nhẹ, ưu tiên mượt trên điện thoại */
+  const snowCount = window.innerWidth < 700 ? 34 : 48;
+  for(let i=0;i<snowCount;i++) {
+    const flake = document.createElement("span");
+    const size = (Math.random()*4 + 2).toFixed(1);
+    flake.style.left = (Math.random()*100) + "%";
+    flake.style.width = size + "px";
+    flake.style.height = size + "px";
+    flake.style.opacity = String(Math.random()*0.68 + 0.22);
+    flake.style.setProperty("--drift", ((Math.random()*86)-43).toFixed(0) + "px");
+    flake.style.animationDuration = (Math.random()*6 + 6).toFixed(2) + "s";
+    flake.style.animationDelay = (-Math.random()*12).toFixed(2) + "s";
+    snowLayer.appendChild(flake);
+  }
 
-      window.addEventListener('beforeinstallprompt', (e)=>{
-        e.preventDefault();
-        deferredPrompt=e;
-        installBtn.style.display='inline-block';
-      });
+  let progress = 12;
+  let done = false;
 
-      installBtn.addEventListener('click', async ()=>{
-        if(deferredPrompt){
-          deferredPrompt.prompt();
-          await deferredPrompt.userChoice;
-          deferredPrompt=null;
-          refreshInstallButton();
-          return;
-        }
+  const texts = [
+    "Vui lòng chờ trong giây lát",
+    "Đang kết nối dữ liệu quản trị...",
+    "Đang chuẩn bị Dashboard SIM AI...",
+    "Sắp hoàn tất..."
+  ];
 
-        const isiOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-        helpText.textContent = isiOS
-          ? 'Trên iPhone/iPad: bấm nút Chia sẻ của Safari → chọn “Thêm vào Màn hình chính”.'
-          : 'Nếu trình duyệt chưa hiện hộp cài đặt: mở menu ⋮ của Chrome → chọn “Cài đặt ứng dụng” hoặc “Thêm vào màn hình chính”.';
-        help.style.display='flex';
-      });
+  function textFor(v){
+    return v < 30 ? texts[0] :
+           v < 55 ? texts[1] :
+           v < 80 ? texts[2] : texts[3];
+  }
 
-      closeHelp.addEventListener('click', ()=> help.style.display='none');
-      help.addEventListener('click', e=>{ if(e.target===help) help.style.display='none'; });
+  const timer = setInterval(() => {
+    if(done) return;
+    if(progress < 35) progress += Math.random()*5;
+    else if(progress < 60) progress += Math.random()*3;
+    else if(progress < 82) progress += Math.random()*1.8;
+    else if(progress < 92) progress += Math.random()*.7;
 
-      window.addEventListener('appinstalled', ()=>{
-        deferredPrompt=null;
-        refreshInstallButton();
-      });
+    progress = Math.min(progress,92);
+    bar.style.width = progress + "%";
+    caption.textContent = textFor(progress);
+  },220);
 
-      if('serviceWorker' in navigator){
-        window.addEventListener('load', ()=>{
-          navigator.serviceWorker.register('./sw.js').catch(()=>{});
-        });
-      }
+  function finish(){
+    if(done) return;
+    done = true;
+    clearInterval(timer);
 
-      refreshInstallButton();
-    })();
-  </script>
+    bar.style.width = "100%";
+    caption.textContent = "Hoàn tất";
+    document.body.classList.add("app-ready");
+
+    setTimeout(() => loading.classList.add("hide"),180);
+  }
+
+  frame.addEventListener("load", () => {
+    setTimeout(finish,5000);
+  });
+
+  setTimeout(() => {
+    if(!done) finish();
+  },8500);
+})();
+</script>
 </body>
 </html>
